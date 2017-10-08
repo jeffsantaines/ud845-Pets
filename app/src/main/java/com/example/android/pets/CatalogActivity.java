@@ -29,13 +29,16 @@ import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
+import com.example.android.pets.data.PetProvider;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
 
-    /** Database helper that will provide us access to the database */
+    /**
+     * Database helper that will provide us access to the database
+     */
     private PetDbHelper mDbHelper;
 
     @Override
@@ -69,8 +72,6 @@ public class CatalogActivity extends AppCompatActivity {
      * the pets database.
      */
     private void displayDatabaseInfo() {
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
@@ -79,10 +80,10 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_NAME,
                 PetEntry.COLUMN_PET_BREED,
                 PetEntry.COLUMN_PET_GENDER,
-                PetEntry.COLUMN_PET_WEIGHT };
+                PetEntry.COLUMN_PET_WEIGHT};
 
         // Perform a query on the pets table
-        Cursor cursor = db.query(
+       /** Cursor cursor = db.query(
                 PetEntry.TABLE_NAME,   // The table to query
                 projection,            // The columns to return
                 null,                  // The columns for the WHERE clause
@@ -90,7 +91,9 @@ public class CatalogActivity extends AppCompatActivity {
                 null,                  // Don't group the rows
                 null,                  // Don't filter by row groups
                 null);                   // The sort order
+        */
 
+       Cursor cursor = getContentResolver().query(PetEntry.CONTENT_URI,projection,null,null,null);
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
         try {

@@ -1,12 +1,18 @@
 package com.example.android.pets.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import com.example.android.pets.data.PetContract.PetEntry;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import static android.R.attr.id;
 
 /**
  * Created by Jeffrey on 08-Oct-17.
@@ -22,9 +28,9 @@ public class PetProvider extends ContentProvider {
     public static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY,PetContract.PATH_PETS,PET);
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS, PET);
 
-        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY,PetContract.PATH_PETS +"/#",PETS);
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS + "/#", PETS);
     }
 
     /**
@@ -44,8 +50,52 @@ public class PetProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
+                        @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+
+        //Get a readable database
+        SQLiteDatabase database = mPetDbHelper.getReadableDatabase();
+
+        //This cursor will hold the result of the query
+        Cursor cursor = null;
+
+        //Figure out if the URI matcher can match the URI to a specific code.
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case PETS:
+                //For the PETS code, query the pets table directly with the given
+                //projection, selection, selection arguments and sort order. The cursor
+                //could contain multiple rows of the pets table.
+                //TODO: Perform database query on pets table
+                cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case PET:
+                //For the PET_ID code, extract out the ID from the URI.
+                //For example URI such as "content://com.example.pets/pets/3",
+                //the selection will be "_id'?" and the selection argument will be a
+                //String array containing the actual ID OF 3 in this case.
+                //
+                //For every "?" in the selection, we need to have an element in the selection
+                //arguments that will fill in the "?". Since we have 1 question mark in the
+                //selection, we hae 1 String in the selection argument' String array.
+
+                selection = PetEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+
+                //This will perform a query on the pets table where the _id equals 3 to return a 
+                //Cursor containing that row of the table.
+
+                cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("Cannot query unknown URI" + uri);
+
+        }
+
+        return cursor;
     }
 
     @Nullable
@@ -57,7 +107,22 @@ public class PetProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        switch (match){
+            case PETS:
+                return insert(uri, values);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for" + uri);
+        }
+    }
+
+    private Uri insertPet(Uri uri, ContentValues contentValues) {
+        //TODO: Insert a new pet into the pets database table with the given ContentValues
+
+
+        //Once we know the ID of the new row in the table,
+        //return the new URI with the ID appended to the end of it
+        return ContentUris.withAppendedId(uri, id);
     }
 
     @Override
