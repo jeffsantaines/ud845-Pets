@@ -7,10 +7,12 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+
 import com.example.android.pets.data.PetContract.PetEntry;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import static android.R.attr.id;
 
@@ -57,7 +59,7 @@ public class PetProvider extends ContentProvider {
         SQLiteDatabase database = mPetDbHelper.getReadableDatabase();
 
         //This cursor will hold the result of the query
-        Cursor cursor = null;
+        Cursor cursor;
 
         //Figure out if the URI matcher can match the URI to a specific code.
         int match = sUriMatcher.match(uri);
@@ -106,22 +108,45 @@ public class PetProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+    public Uri insert(Uri uri, ContentValues contentValues) {
+
         final int match = sUriMatcher.match(uri);
-        switch (match){
+        switch (match) {
+            //we are only operating on thw whole table
             case PETS:
-                return insert(uri, values);
+                return insertPet(uri, contentValues);
             default:
-                throw new IllegalArgumentException("Insertion is not supported for" + uri);
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
+
     }
 
-    private Uri insertPet(Uri uri, ContentValues contentValues) {
-        //TODO: Insert a new pet into the pets database table with the given ContentValues
+    /**
+     * Insert a pet into the database with the given content values. Return the new content URI
+     * for that specific row in the database.
+     */
+    private Uri insertPet(Uri uri, ContentValues values) {
 
+        // TODO: Insert a new pet into the pets database table with the given ContentValuesv// Gets the database in write mode
+        SQLiteDatabase db = mPetDbHelper.getWritableDatabase();
 
-        //Once we know the ID of the new row in the table,
-        //return the new URI with the ID appended to the end of it
+        // Insert a new row for Toto in the database, returning the ID of that new row.
+        // The first argument for db.insert() is the pets table name.
+        // The second argument provides the name of a column in which the framework
+        // can insert NULL in the event that the ContentValues is empty (if
+        // this is set to "null", then the framework will NOT insert a row when
+        // there are no values).
+        // The third argument is the ContentValues object containing the info for Toto.
+        long id = db.insert(PetEntry.TABLE_NAME, null, values);
+
+        // If the ID is -1, then the insertion failed. Log an error and return null.
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
+
+        // Once we know the ID of the new row in the table,
+        // return the new URI with the ID appended to the end of it
         return ContentUris.withAppendedId(uri, id);
     }
 
