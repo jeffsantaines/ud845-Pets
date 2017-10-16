@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import static android.R.attr.id;
 
 /**
  * Created by Jeffrey on 08-Oct-17.
@@ -31,7 +30,6 @@ public class PetProvider extends ContentProvider {
 
     static {
         sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS, PET);
-
         sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS + "/#", PETS);
     }
 
@@ -52,8 +50,7 @@ public class PetProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
-                        @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 
         //Get a readable database
         SQLiteDatabase database = mPetDbHelper.getReadableDatabase();
@@ -89,8 +86,7 @@ public class PetProvider extends ContentProvider {
                 //This will perform a query on the pets table where the _id equals 3 to return a 
                 //Cursor containing that row of the table.
 
-                cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs,
-                        null, null, sortOrder);
+                cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI" + uri);
@@ -127,8 +123,28 @@ public class PetProvider extends ContentProvider {
      */
     private Uri insertPet(Uri uri, ContentValues values) {
 
-        // TODO: Insert a new pet into the pets database table with the given ContentValuesv// Gets the database in write mode
+        String petName = values.getAsString(PetEntry.COLUMN_PET_NAME);
+        Integer gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
+        Integer weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
+
+
+        if (petName == null) {
+            throw new IllegalArgumentException("Pet requires a name");
+        }
+
+        //Breed can be null
+
+        if (gender == null || !PetEntry.isValid(gender)) {
+            throw new IllegalArgumentException("Pet requires a gender");
+        }
+
+        if (weight != null && weight < 0) {
+            throw new IllegalArgumentException("Pet requires a valid weight");
+        }
+
+
         SQLiteDatabase db = mPetDbHelper.getWritableDatabase();
+
 
         // Insert a new row for Toto in the database, returning the ID of that new row.
         // The first argument for db.insert() is the pets table name.
