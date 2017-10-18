@@ -15,6 +15,7 @@
  */
 package com.example.android.pets.data;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -47,10 +48,10 @@ public final class PetContract {
     public static final String PATH_PETS = "pets";
 
 
-
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
-    private PetContract() {}
+    private PetContract() {
+    }
 
     /**
      * Inner class that defines constant values for the pets database table.
@@ -58,49 +59,66 @@ public final class PetContract {
      */
     public static final class PetEntry implements BaseColumns {
 
-        /** The content URI to access the pet data in the provider */
+        /**
+         * The content URI to access the pet data in the provider
+         */
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
 
-        /** Name of database table for pets */
+        /**
+         * Name of database table for pets
+         */
         public final static String TABLE_NAME = "pets";
 
         /**
          * Unique ID number for the pet (only for use in the database table).
-         *
+         * <p>
          * Type: INTEGER
          */
         public final static String _ID = BaseColumns._ID;
 
         /**
          * Name of the pet.
-         *
+         * <p>
          * Type: TEXT
          */
-        public final static String COLUMN_PET_NAME ="name";
+        public final static String COLUMN_PET_NAME = "name";
 
         /**
          * Breed of the pet.
-         *
+         * <p>
          * Type: TEXT
          */
         public final static String COLUMN_PET_BREED = "breed";
 
         /**
          * Gender of the pet.
-         *
+         * <p>
          * The only possible values are {@link #GENDER_UNKNOWN}, {@link #GENDER_MALE},
          * or {@link #GENDER_FEMALE}.
-         *
+         * <p>
          * Type: INTEGER
          */
         public final static String COLUMN_PET_GENDER = "gender";
 
         /**
          * Weight of the pet.
-         *
+         * <p>
          * Type: INTEGER
          */
         public final static String COLUMN_PET_WEIGHT = "weight";
+
+        /**
+         * The MIME type of the {@link #CONTENT_URI} for a list of pets.
+         */
+        public static final String CONTENT_LIST_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
+                + PATH_PETS;
+
+        /**
+         * The MIME type of the {@link #CONTENT_URI} for a single pet.
+         */
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
+                + PATH_PETS;
+
 
         /**
          * Possible values for the gender of the pet.
@@ -109,9 +127,9 @@ public final class PetContract {
         public static final int GENDER_MALE = 1;
         public static final int GENDER_FEMALE = 2;
 
-        public static boolean isValid(Integer gender) {
+        public static boolean isValidGender(Integer gender) {
             boolean valid = false;
-            if (gender==GENDER_MALE || gender == GENDER_FEMALE || gender == GENDER_UNKNOWN) {
+            if (gender == GENDER_MALE || gender == GENDER_FEMALE || gender == GENDER_UNKNOWN) {
                 valid = true;
             }
             return valid;
