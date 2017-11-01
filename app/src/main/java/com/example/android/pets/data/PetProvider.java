@@ -126,6 +126,8 @@ public class PetProvider extends ContentProvider {
      */
     private Uri insertPet(Uri uri, ContentValues values) {
 
+
+        //data validation of the name of the pet
         String petName = values.getAsString(PetEntry.COLUMN_PET_NAME);
         if (petName == null) {
             throw new IllegalArgumentException("Pet requires a name");
@@ -137,11 +139,13 @@ public class PetProvider extends ContentProvider {
             throw new IllegalArgumentException("Pet requires a gender");
         }
 
+        //data validation of the pet weight null is ok but cannot be less than zero
         Integer weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
         if (weight != null && weight < 0) {
             throw new IllegalArgumentException("Pet requires a valid weight");
         }
 
+        //create a writable database
         SQLiteDatabase db = mPetDbHelper.getWritableDatabase();
 
         // Insert a new row for Toto in the database, returning the ID of that new row.

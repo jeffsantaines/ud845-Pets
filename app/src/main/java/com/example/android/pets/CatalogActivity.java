@@ -15,6 +15,7 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -88,6 +90,22 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         // We pass null for the cursor, then update it in onLoadFinished()
         petAdapter = new PetCursorAdapter(this, null);
         petListView.setAdapter(petAdapter);
+
+        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                //create a new intent
+                Intent intent_open_EditorActivity = new Intent(CatalogActivity.this, EditorActivity.class);
+
+                //append the id on the URI
+                Uri currentPetUri = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
+
+                //set the URI data that an intent is now targeting using setData()
+                intent_open_EditorActivity.setData(currentPetUri);
+                startActivity(intent_open_EditorActivity);
+            }
+        });
+
         getLoaderManager().initLoader(URL_LOADER, null, (android.app.LoaderManager.LoaderCallbacks<Cursor>) this);
     }
 
