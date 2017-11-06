@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -71,7 +72,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     PetCursorAdapter petAdapter;
 
-    public static final int URL_LOADER = 0;
+    public static final int EXISTING_PET_LOADER = 0;
 
     private Uri mCurrentPetUri;
 
@@ -79,28 +80,35 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Intent intent = getIntent();
-
-        mCurrentPetUri = intent.getData();
-
-        if (mCurrentPetUri == null) {
-            setTitle(getString(R.string.editor_activity_title_new_pet));
-        } else {
-            setTitle(getString(R.string.editor_activity_title_edit_pet));
-        }
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        // Examine the intent that was used to launch this activity,
+        // in order to figure out if we're creating a new pet or editing an existing one.
+        Intent intent = getIntent();
+        mCurrentPetUri = intent.getData();
+
+        // If the intent DOES NOT contain a pet content URI, then we know that we are
+        // creating a new pet.
+        if (mCurrentPetUri == null) {
+            // This is a new pet, so change the app bar to say "Add a Pet"
+            setTitle(getString(R.string.editor_activity_title_new_pet));
+        } else {
+            // Otherwise this is an existing pet, so change app bar to say "Edit Pet"
+            setTitle(getString(R.string.editor_activity_title_edit_pet));
+
+            // Initialize a loader to read the pet data from the database
+            // and display the current values in the editor
+            getLoaderManager().initLoader(EXISTING_PET_LOADER, null, this);
+        }
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
-        setupSpinner();
 
-        getLoaderManager().initLoader(URL_LOADER, null, this);
+        setupSpinner();
 
 
     }
@@ -247,6 +255,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         // Since the editor shows all pet attributes, define a projection that contains
         // all columns from the pet table
+        Log.i("Editor Activity: ", "Before returning a Cursor Loader");
         String[] projection = {
                 PetEntry._ID,
                 PetEntry.COLUMN_PET_NAME,
@@ -261,7 +270,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 null,                   // No selection clause
                 null,                   // No selection arguments
                 null);                  // Default sort order
+
+
     }
+
+
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
