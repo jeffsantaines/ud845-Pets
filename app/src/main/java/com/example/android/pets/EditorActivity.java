@@ -161,7 +161,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
-        int weight = Integer.parseInt(weightString);
+
+        int weight;
+
+        if (!(weightString.isEmpty())) {
+            weight = Integer.parseInt(weightString);
+        } else {
+            weight =0;
+        }
+
+        if (nameString.isEmpty() && breedString.isEmpty() && weight==0 && mGender == 0) {
+            finish();
+            return;
+        }
+
 
 
         // Create a ContentValues object where column names are the keys,
@@ -271,10 +284,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 null,                   // No selection arguments
                 null);                  // Default sort order
 
-
     }
-
-
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -312,7 +322,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     mGenderSpinner.setSelection(0);
                     break;
             }
-
         }
 
     }
