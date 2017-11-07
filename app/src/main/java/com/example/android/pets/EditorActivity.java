@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -76,6 +77,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private Uri mCurrentPetUri;
 
+    private boolean mPetHasChanged = false;
+
+    private View.OnTouchListener mOnTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mPetHasChanged = true;
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +120,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         setupSpinner();
 
-
+        mNameEditText.setOnTouchListener(mOnTouchListener);
+        mBreedEditText.setOnTouchListener(mOnTouchListener);
+        mWeightEditText.setOnTouchListener(mOnTouchListener);
+        mGenderSpinner.setOnTouchListener(mOnTouchListener);
     }
 
     /**
