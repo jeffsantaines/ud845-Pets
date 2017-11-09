@@ -89,6 +89,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     };
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -105,6 +107,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (mCurrentPetUri == null) {
             // This is a new pet, so change the app bar to say "Add a Pet"
             setTitle(getString(R.string.editor_activity_title_new_pet));
+
+            //redraw the options menu so we can redraw the menu option and hide the "Delete" menu
+            //redraw happens because calling invalidateOptionsMenu() calls the onPrepareOptionsMenu where
+            //you can set the visibility of the menu item "action_delete"
+            invalidateOptionsMenu();
         } else {
             // Otherwise this is an existing pet, so change app bar to say "Edit Pet"
             setTitle(getString(R.string.editor_activity_title_edit_pet));
@@ -187,6 +194,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         showUnsavedChangesDialog(discardButtonClickListener);
 
     }
+
 
     private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
         // Create an AlertDialog.Builder and set the message, click listeners
@@ -285,6 +293,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         getMenuInflater().inflate(R.menu.menu_editor, menu);
         return true;
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if (mCurrentPetUri==null){
+            MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+        }
+        return true;
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
