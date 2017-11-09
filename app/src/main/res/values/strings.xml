@@ -68,4 +68,9 @@
     <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
     <string name="discard">Discard</string>
     <string name="keep_editing">Keep Editing</string>
+    <string name="delete_dialog_message">Delete a Pet</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="pet_deleted">Pet has been successfullly deleted.</string>
+    <string name="pet_deletion_failed">Deletion of pet failed.</string>
 </resources>

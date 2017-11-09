@@ -182,16 +182,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return;
         }
 
-        DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener discard_ButtonClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                //User clicked "Discard" button, close the currenty activity.
+                //User clicked "Discard" button, close the current activity.
+                //finish() closes the current activity which is EditorActivity in this instance
                 finish();
             }
         };
 
         //show dialog that there are unsaved changes
-        showUnsavedChangesDialog(discardButtonClickListener);
+        showUnsavedChangesDialog(discard_ButtonClickListener);
 
     }
 
@@ -217,6 +218,50 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         alertDialog.show();
 
     }
+
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_message);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                deletePet();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void deletePet() {
+        //TODO
+        if (mCurrentPetUri != null) {
+            int rowsDeleted = getContentResolver().delete(mCurrentPetUri, null, null);
+            //NavUtils.navigateUpFromSameTask(this);
+
+            if (rowsDeleted == 0) {
+                Toast.makeText(this, getString(R.string.pet_deletion_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.pet_deleted),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        finish();
+    }
+
 
     /**
      * Get user input from editor and save new pet into database.
@@ -318,7 +363,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
-                delete();
+                showDeleteConfirmationDialog();
+                //delete();
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
